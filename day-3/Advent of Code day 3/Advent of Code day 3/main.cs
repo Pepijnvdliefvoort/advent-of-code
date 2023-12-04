@@ -6,8 +6,12 @@ namespace Advent_of_Code_day_3
 {
     internal class main
     {
+        private static List<Asterisk> _asterisks;
+
         public static void Main(string[] args)
         {
+            _asterisks = new List<Asterisk>();
+
             // Get the directory where the executable is located
             string exeDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
@@ -25,12 +29,9 @@ namespace Advent_of_Code_day_3
                 {
                     var lines = File.ReadLines(relativeFilePath);
 
-                    var result = PartOne(lines!.ToList());
-
-                    Part1(lines!.ToList());
-
                     // Display the content
-                    Console.WriteLine("Part One: " + result);
+                    Console.WriteLine("Part One: " + PartOne(lines!.ToList()));
+                    Console.WriteLine("Part Two: " + PartTwo(lines!.ToList()));
                 }
                 else
                 {
@@ -48,7 +49,7 @@ namespace Advent_of_Code_day_3
 
         private static int PartOne(List<string> rows)
         {
-            string symbols = "!\"#$%&\\'()*+,-/:;<=>?@[\\]^_`{|}~";
+            string validSymbols = "!\"#$%&\\'()*+,-/:;<=>?@[\\]^_`{|}~";
 
             int sum = 0;
             for (int i = 0; i < rows.Count; i++)
@@ -74,16 +75,16 @@ namespace Advent_of_Code_day_3
                     {
                         foreach (char curr in chars)
                         {
-                            Console.Write(curr);
-                            if (symbols.Contains(curr))
+                            //Console.Write(curr);
+                            if (validSymbols.Contains(curr))
                             {
                                 valid = true;
                             }
                         }
-                        Console.WriteLine();
+                        //Console.WriteLine();
                     }
-                    Console.WriteLine(valid);
-                    Console.WriteLine();
+                    //Console.WriteLine(valid);
+                    //Console.WriteLine();
 
                     if (valid)
                     {
@@ -93,6 +94,76 @@ namespace Advent_of_Code_day_3
             }
 
             return sum;
+        }
+
+        private static int PartTwo(List<string> rows)
+        {
+            var gearLocations = new List<(int row, int col, int partNumber)>();
+
+            for (int i = 0; i < rows.Count; i++)
+            {
+                var row = rows[i];
+                Regex regex = new Regex(@"\d+");
+                foreach (Match match in regex.Matches(row))
+                {
+                    var partNumber = int.Parse(match.Value);
+                    var startingIndex = match.Index;
+                    var endingIndex = startingIndex + match.Value.Length - 1;
+
+                    var searchCells = GetSearchCells(startingIndex, endingIndex, i, rows.Count, row.Length);
+                    var borderingGearLocations = GetBorderingGearLocations(searchCells, rows, partNumber);
+                    gearLocations.AddRange(borderingGearLocations);
+                }
+            }
+
+            //gearLocations.ForEach(gl => Console.WriteLine($"{gl.row}, {gl.col}, {gl.partNumber}"));
+
+            var gearRatioSum = gearLocations
+                .GroupBy(gearLocation => new
+                {
+                    gearLocation.row,
+                    gearLocation.col,
+                })
+                .Select(gearLocationGroup => new
+                {
+                    row = gearLocationGroup.Key.row,
+                    col = gearLocationGroup.Key.col,
+                    partNumbers = gearLocationGroup.Select(glg => glg.partNumber).ToList(),
+                })
+                .Where(gearLocationGroup => gearLocationGroup.partNumbers.Count() == 2)
+                .Select(gearLocationGroup => gearLocationGroup.partNumbers[0] * gearLocationGroup.partNumbers[1])
+                .Sum();
+
+            return gearRatioSum;
+        }
+        
+        private static List<(int row, int col, int partNumber)> GetBorderingGearLocations(List<(int row, int col)> searchCells, List<string> rows, int partNumber)
+        {
+            var gearLocations = new List<(int row, int col, int partNumber)>();
+            foreach (var searchCell in searchCells)
+            {
+                var cell = rows[searchCell.row][searchCell.col];
+                if (cell == '*')
+                {
+                    gearLocations.Add((searchCell.row, searchCell.col, partNumber));
+                }
+            }
+            return gearLocations;
+        }
+
+        private static List<(int row, int col)> GetSearchCells(int startingIndex, int endingIndex, int rowIndex, int numRows, int numColumns)
+        {
+            var searchCells = new List<(int row, int col)>();
+            for (int i = rowIndex - 1; i < rowIndex + 2; i++)
+            {
+                for (int j = startingIndex - 1; j <= endingIndex + 1; j++)
+                {
+                    searchCells.Add((i, j));
+                }
+            }
+            return searchCells
+                .Where(sc => sc.row >= 0 && sc.row < numRows && sc.col >= 0 && sc.col < numColumns)
+                .ToList();
         }
 
         private static List<List<char>> GetSurroundingCells(List<string> rows, int row, int pos, int length)
@@ -111,7 +182,9 @@ namespace Advent_of_Code_day_3
                     }
                     else
                     {
-                        cells[i + 1].Add(rows[row + i][j]);
+                        char curr = rows[row + i][j];
+
+                        cells[i + 1].Add(curr);
                     }
                 }
             }
