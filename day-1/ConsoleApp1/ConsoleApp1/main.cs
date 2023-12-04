@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace ConsoleApp1
@@ -21,11 +22,8 @@ namespace ConsoleApp1
                 // Check if the file exists
                 if (File.Exists(filePath))
                 {
-                    // Calculate result
-                    int result = GetSum(filePath);
-
-                    // Display the content
-                    Console.WriteLine(result);
+                    Console.WriteLine("Part One: " + PartOne(filePath));
+                    Console.WriteLine("Part Two: " + PartTwo(filePath));
                 }
                 else
                 {
@@ -41,7 +39,7 @@ namespace ConsoleApp1
             Console.ReadKey();
         }
 
-        private static int GetSum(string fileContent)
+        private static int PartOne(string fileContent)
         {
             int sum = 0;
 
@@ -57,7 +55,6 @@ namespace ConsoleApp1
                     string lineSum = $"{firstNumber}{lastNumber}";
                     int intSum = int.Parse(lineSum);
                     sum += intSum;
-                    Console.WriteLine($"{firstNumber}, {lastNumber}, {intSum}, {line}");
                 }
             }
             catch (FileNotFoundException)
@@ -70,6 +67,63 @@ namespace ConsoleApp1
             }
 
             return sum;
+        }
+
+        private static int PartTwo(string fileContent)
+        {
+            var list = File.ReadAllLines(fileContent);
+
+            var numbers = new Dictionary<string, int>() {
+                {"one" ,   1}
+                ,{"two" ,  2}
+                ,{"three" , 3}
+                ,{"four" , 4}
+                ,{"five" , 5}
+                ,{"six" , 6}
+                ,{"seven" , 7}
+                ,{"eight" , 8}
+                , {"nine" , 9 }
+            };
+            int total = 0;
+            string digit1 = string.Empty;
+            string digit2 = string.Empty;
+            foreach (var item in list)
+            {
+                //forward
+                digit1 = calculateTotal(item, numbers);
+                digit2 = calculateTotal(new string(item.Reverse().ToArray()), numbers.ToDictionary(k => new string(k.Key.Reverse().ToArray()), k => k.Value));
+                total += Int32.Parse(digit1 + digit2);
+            }
+
+            Console.WriteLine(total);
+
+            string calculateTotal(string item, Dictionary<string, int> numbers)
+            {
+                int index = 0;
+                int digit = 0;
+                foreach (var c in item)
+                {
+                    var sub = item.AsSpan(index++);
+                    foreach (var n in numbers)
+                    {
+                        if (sub.StartsWith(n.Key))
+                        {
+                            digit = n.Value;
+                            goto end;
+                        }
+                    }
+
+                    if ((int)c >= 48 && (int)c <= 57)
+                    {
+                        digit = ((int)c) - 48;
+                        break;
+                    }
+                }
+                end:
+                return digit.ToString();
+            }
+
+            return total;
         }
 
         private static int GetDigit(string line)
