@@ -12,6 +12,7 @@ namespace Advent_of_Code_day_2
 
             // Specify the relative path to the file
             string relativeFilePath = Path.Combine("input", "input.txt");
+            //string relativeFilePath = Path.Combine("input", "test.txt");
 
             // Combine the executable directory with the relative file path
             string filePath = Path.Combine(exeDirectory, relativeFilePath);
@@ -22,10 +23,12 @@ namespace Advent_of_Code_day_2
                 if (File.Exists(filePath))
                 {
                     // Calculate result
-                    int result = GetSumOfGameIds(fileContent: filePath);
+                    int partOne = PartOne(fileContent: filePath);
+                    int partTwo = PartTwo(filePath);
 
                     // Display the content
-                    Console.WriteLine(result);
+                    Console.WriteLine(partOne);
+                    Console.WriteLine(partTwo);
                 }
                 else
                 {
@@ -41,7 +44,7 @@ namespace Advent_of_Code_day_2
             Console.ReadKey();
         }
 
-        private static int GetSumOfGameIds(string fileContent, int reds = 12, int greens = 13, int blues = 14)
+        private static int PartOne(string fileContent, int reds = 12, int greens = 13, int blues = 14)
         {
             var lines = File.ReadAllLines(fileContent);
             var sum = 0;
@@ -96,37 +99,47 @@ namespace Advent_of_Code_day_2
             return sum;
         }
 
-        static Dictionary<string, List<int>> GetNumbersBeforeColors(string input)
+        private static int PartTwo(string fileContent)
         {
-            Dictionary<string, List<int>> numbersBeforeColors = new Dictionary<string, List<int>>
+            var lines = File.ReadAllLines(fileContent);
+            var sum = 0;
+            
+            foreach (var game in lines)
             {
-                { "red", new List<int>() },
-                { "green", new List<int>() },
-                { "blue", new List<int>() }
-            };
-
-            var entries = input.Split(';');
-
-            foreach (var entry in entries)  
-            {
-                var matches = Regex.Matches(entry, @"(\d+) (\w+)");
-                foreach (Match match in matches)
+                int gameId = Int32.Parse(game.Split(':')[0].Split(' ')[1]);
+                string[] gameColourSets = game.Split(":")[1].Split(';');
+                Dictionary<string, int> gameColourSetAmounts = new Dictionary<string, int>();
+                foreach (var gameSet in gameColourSets)
                 {
-                    var number = int.Parse(match.Groups[1].Value);
-                    var color = match.Groups[2].Value.ToLower();
-
-                    foreach (var kvp in numbersBeforeColors)
+                    string[] colourSets = gameSet.Split(',');
+                    foreach (var colourSet in colourSets)
                     {
-                        if (kvp.Key == color)
+                        var data = colourSet.Split(" ");
+                        var dataAmount = Int32.Parse(data[1]);
+                        var colourName = data[2];
+                        if (gameColourSetAmounts.ContainsKey(colourName))
                         {
-                            kvp.Value.Add(number);
-                            break;
+                            if (dataAmount > gameColourSetAmounts[colourName])
+                            {
+                                gameColourSetAmounts[colourName] = dataAmount;
+                            }
+                        }
+                        else
+                        {
+                            gameColourSetAmounts.Add(colourName, dataAmount);
                         }
                     }
                 }
+
+                var powers = 1;
+                foreach (var gameColourSet in gameColourSetAmounts)
+                {
+                    powers *= gameColourSet.Value;
+                }
+                sum += powers;
             }
 
-            return numbersBeforeColors;
+            return sum;
         }
     }
 }
