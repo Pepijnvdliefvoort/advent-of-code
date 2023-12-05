@@ -56,6 +56,11 @@ namespace Advent_of_Code_day_3
             return currentNumbers.Min();
         }
 
+        private static long PartTwo(Almanac almanac)
+        {
+            return 0;
+        }
+
         private static List<long> MapNumbers(List<long> numbers, CategoryMap categoryMap)
         {
             List<long> result = new List<long>();
