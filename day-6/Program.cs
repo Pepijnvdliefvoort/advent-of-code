@@ -25,7 +25,7 @@ namespace Advent_of_Code_day_3
 
                     // Display the content
                     Console.WriteLine("Part One: " + PartOne(lines!.ToList()));
-                    //Console.WriteLine("Part Two: " + PartTwo(lines!.ToList()));
+                    Console.WriteLine("Part Two: " + PartTwo(lines!.ToList()));
                 }
                 else
                 {
@@ -41,17 +41,15 @@ namespace Advent_of_Code_day_3
             Console.ReadKey();
         }
 
-        private static int PartOne(List<string> rows)
+        private static long PartOne(List<string> rows)
         {
-            Tuple<int, int> races;
-
             string pattern = @"\D";
 
 
             List<int> times = Regex.Split(rows[0], pattern).Where(c => !string.IsNullOrWhiteSpace(c)).Select(int.Parse).ToList();
             List<int> record = Regex.Split(rows[1], pattern).Where(c => !string.IsNullOrWhiteSpace(c)).Select(int.Parse).ToList();
 
-            int sum = 1;
+            long sum = 1;
 
             for (int i = 0; i < times.Count; i++)
             {
@@ -61,17 +59,25 @@ namespace Advent_of_Code_day_3
             return sum;
         }
 
-        private static int PartTwo(List<string> rows)
+        private static long PartTwo(List<string> rows)
         {
-            return 0;
+            string pattern = @"\D";
+
+
+            long time = long.Parse(rows[0].Split(':')[1].Replace(" ", ""));
+            long record = long.Parse(rows[1].Split(':')[1].Replace(" ", ""));
+
+            long sum = GetPossibleWaysToBeat(time, record);
+
+            return sum;
         }
 
-        private static int GetPossibleWaysToBeat(int time, int record)
+        private static long GetPossibleWaysToBeat(long time, long record)
         {
-            int possibleWays = 0;
-            int speed = 0;
+            long possibleWays = 0;
+            long speed = 0;
 
-            for (int i = time; i > 0; i--)
+            for (long i = time; i > 0; i--)
             {
                 if (speed * i > record)
                 {
