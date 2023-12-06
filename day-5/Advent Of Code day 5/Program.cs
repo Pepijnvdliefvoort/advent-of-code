@@ -25,10 +25,13 @@ namespace Advent_of_Code_day_3
                     Almanac almanac = ReadAlmanacFromFile(filePath);
 
                     var result1 = PartOne(almanac);
+
+                    Day05 day5 = new Day05(File.ReadAllText(filePath));
+
                     var result2 = PartTwo(almanac);
 
                     Console.WriteLine("Part One: " + result1);
-                    Console.WriteLine("Part Two: " + result2);
+                    Console.WriteLine("Part Two: " + day5.SolvePartTwo());
                 }
                 else
                 {
@@ -58,7 +61,15 @@ namespace Advent_of_Code_day_3
 
         private static long PartTwo(Almanac almanac)
         {
-            return 0;
+            List<long> currentNumbers = almanac.Seeds;
+
+            foreach (var map in almanac.Maps.Values)
+            {
+                currentNumbers = MapNumbers(currentNumbers, map);
+            }
+
+            return currentNumbers.Min();
+
         }
 
         private static List<long> MapNumbers(List<long> numbers, CategoryMap categoryMap)
