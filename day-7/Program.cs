@@ -1,9 +1,6 @@
-﻿using System.IO;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Xml.Schema;
+﻿using System.Reflection;
 
-namespace Advent_of_Code_day_3
+namespace Advent_of_Code
 {
     internal class Program
     {
@@ -52,8 +49,41 @@ namespace Advent_of_Code_day_3
             {
                 var line = row.Split(' ');
                 Hand hand = new Hand(line[0], int.Parse(line[1]));
-                hand.Score = CalculateScore(line[0]);
+                hand.Score = CalculateScore(line[0], false);
                 hands.Add(hand);
+            }
+
+            var sortedList = hands
+                .OrderBy(hand => hand.Score, new ListComparer())
+                .ThenBy(hand => hand.Cards, new CardComparer(order))
+                .ToList();
+
+            int i = sortedList.Count;
+            int sum = 0;
+
+            foreach (Hand hand in sortedList)
+            {
+                sum += hand.Bid * i;
+                //Console.WriteLine($"{sum} += {hand.Bid} * {i}");
+                i--;
+            }
+
+            return sum;
+        }
+
+        private static int PartTwo(List<string> rows)
+        {
+            char[] order = new char[] { 'A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2', 'J' };
+
+            List<Hand> hands = new List<Hand>();
+
+            foreach (string row in rows)
+            {
+                var line = row.Split(' ');
+                Hand hand = new Hand(line[0], int.Parse(line[1]));
+                hand.Score = CalculateScore(line[0], true);
+                hands.Add(hand);
+                Console.WriteLine(hands.Count);
             }
 
             var sortedList = hands
@@ -74,13 +104,47 @@ namespace Advent_of_Code_day_3
             return sum;
         }
 
-        private static int PartTwo(List<string> rows)
+        private static List<int> CalculateScore(string cards, bool part2)
         {
-            return 0;
+            if (part2)
+            {
+                int maxLength = cards.Length;
+                int jokers = CheckForJokers(cards);
+                if (jokers > 0)
+                    cards = cards.Replace("J", "");
+
+                if (jokers == maxLength)
+                    return new List<int> { maxLength };
+
+                var score = cards.GroupBy(c => c)
+                .Select(group => group.Count())
+                .OrderByDescending(c => c)
+                .ToList();
+
+                score[0] += jokers;
+                return score;
+            }
+            else
+            {
+                return cards.GroupBy(c => c)
+                .Select(group => group.Count())
+                .OrderByDescending(c => c)
+                .ToList();
+            }
+            
         }
 
-        private static List<int> CalculateScore(string cards) => 
-            cards.GroupBy(c => c).Select(group => group.Count()).OrderByDescending(c => c).ToList();
+        private static int CheckForJokers(string cards)
+        {
+            int jokers = 0;
+            foreach (char c in cards)
+            {
+                if (c.Equals('J'))
+                    jokers++;
+            }
+
+            return jokers;
+        }
     }
 
     class Hand
