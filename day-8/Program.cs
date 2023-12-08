@@ -70,7 +70,7 @@ namespace Advent_of_Code_day_3
                 .Select(x => x.Split(new[] { ' ', ',', '(', ')', '=' }, StringSplitOptions.RemoveEmptyEntries))
                 .ToDictionary(x => x[0], x => x[1..]);
 
-            var findloopFrequency = (string node) =>  // Scan until an end node is seen twice, first index is phase, index difference is period
+            var findloopFrequency = (string node) => 
             {
                 var endSeen = new Dictionary<string, long>();
                 for (long i = 0; true; i++)
