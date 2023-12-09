@@ -68,7 +68,27 @@ namespace Advent_of_Code
 
         private static int PartTwo(List<string> rows)
         {
-            return 0;
+            int sum = 0;
+            foreach (string row in rows)
+            {
+                List<int> sequence = row.Split(' ').Select(int.Parse).ToList();
+                List<List<int>> report = new List<List<int>>();
+                report.Add(sequence);
+
+                int index = 0;
+                var test = report.Last().GroupBy(num => num).Count();
+                while (report.Last()[0] != 0 || report.Last().GroupBy(num => num).Count() != 1)
+                {
+                    report.Add(GetDifferences(report[index]));
+
+                    index++;
+                }
+
+                int num = CalculatePreviousNumber(report);
+                sum += num;
+            }
+
+            return sum;
         }
 
         private static List<int> GetDifferences(List<int> sequence)
@@ -105,6 +125,26 @@ namespace Advent_of_Code
             }
 
             return report[0].Last();
+        }
+
+        private static int CalculatePreviousNumber(List<List<int>> report)
+        {
+            /*
+             *-3, 0, 3, 6, 9, 12, 15
+             *   3, 3, 3, 3, 3, 3
+             *    0, 0, 0, 0, 0
+             */
+            report.Last().Insert(0, 0);
+
+            for (int i = report.Count() - 2; i >= 0; i--)
+            {
+                var down = report[i + 1].First();
+                var right = report[i].First();
+
+                report[i].Insert(0, right - down);
+            }
+
+            return report[0].First();
         }
     }
 }
