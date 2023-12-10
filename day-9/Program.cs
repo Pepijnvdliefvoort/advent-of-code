@@ -47,8 +47,10 @@ namespace Advent_of_Code
             foreach (string row in rows)
             {
                 List<int> sequence = row.Split(' ').Select(int.Parse).ToList();
-                List<List<int>> report = new List<List<int>>();
-                report.Add(sequence);
+                List<List<int>> report = new List<List<int>>
+                {
+                    sequence
+                };
 
                 int index = 0;
                 var test = report.Last().GroupBy(num => num).Count();
@@ -129,11 +131,6 @@ namespace Advent_of_Code
 
         private static int CalculatePreviousNumber(List<List<int>> report)
         {
-            /*
-             *-3, 0, 3, 6, 9, 12, 15
-             *   3, 3, 3, 3, 3, 3
-             *    0, 0, 0, 0, 0
-             */
             report.Last().Insert(0, 0);
 
             for (int i = report.Count() - 2; i >= 0; i--)
