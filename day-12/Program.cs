@@ -50,5 +50,24 @@ namespace Advent_of_Code
         {
             return 0;
         }
+
+        private static int GetArrangements(string input, List<int> order)
+        {
+            int arrangements = 0;
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (input[i].Equals('.'))
+                    continue;
+
+                // Beginning of string
+                if (input[i].Equals('.') && (input[i + 1].Equals('#') || input[i + 1].Equals('?')))
+                    continue;
+
+                arrangements++;
+            }
+
+            return arrangements;
+        }
     }
 }
