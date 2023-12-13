@@ -1,6 +1,5 @@
-﻿using System.IO;
-using System.Reflection;
-using System.Text.RegularExpressions;
+﻿using System.Reflection;
+using System.Text;
 
 namespace Advent_of_Code
 {
@@ -13,6 +12,7 @@ namespace Advent_of_Code
 
             string relativeFilePath = Path.Combine("input", "input.txt");
             //string relativeFilePath = Path.Combine("input", "test.txt");
+            //string relativeFilePath = Path.Combine("input", "test1.txt");
 
             string filePath = Path.Combine(exeDirectory, relativeFilePath);
 
@@ -41,6 +41,51 @@ namespace Advent_of_Code
             Console.ReadKey();
         }
 
+        private static int PartTwo(string rows)
+        {
+            var patterns = rows.Split(new[] { Environment.NewLine + Environment.NewLine }, StringSplitOptions.None);
+
+            int verticals = 0, horizontals = 0;
+
+            foreach (string pattern in patterns)
+            {
+                var oldVertical = GetVerticalNumber(pattern.Split(Environment.NewLine).ToList());
+                var oldHorizontal = GetHorizontalNumer(pattern.Split(Environment.NewLine).ToList());
+
+                var tempVertical = oldVertical;
+                var tempHorizontal = oldHorizontal;
+
+                string initialPattern = pattern.ToString();
+                string newPattern = pattern.ToString();
+
+                for (int i = 0; i < initialPattern.Length; i++)
+                {
+                    // Swap # with . and vice versa
+                    newPattern = Swap(newPattern, i);
+
+                    var newVertical = GetVerticalNumber(newPattern.Split(Environment.NewLine).ToList());
+                    var newHorizontal = GetHorizontalNumer(newPattern.Split(Environment.NewLine).ToList());
+
+                    // Swap back
+                    newPattern = Swap(newPattern, i);
+
+                    if (newVertical != 0 && oldVertical != newVertical && newHorizontal == oldHorizontal)
+                    {
+                        verticals += newVertical;
+                        break;
+                    }
+                    else if (newHorizontal != 0 && oldHorizontal != newHorizontal && newVertical == oldVertical)
+                    {
+                        horizontals += newHorizontal;
+                        break;
+                    }
+                }
+                
+            }
+
+            return 100 * horizontals + verticals;
+        }
+
         private static int PartOne(string rows)
         {
             var patterns = rows.Split(new[] { Environment.NewLine + Environment.NewLine }, StringSplitOptions.None);
@@ -53,62 +98,25 @@ namespace Advent_of_Code
                 verticals += currVert;
                 var currHor = GetHorizontalNumer(pattern.Split(Environment.NewLine).ToList());
                 horizontals += currHor;
-
-                if (currVert != 0)
-                {
-                    Console.WriteLine("Vertical mirror: " + currVert);
-                    string[] lines = pattern.Split("\n");
-                    for (int j = 0; j < lines.Length; j++)
-                    {
-                        for (int i = 0; i < lines[j].Length; i++)
-                        {
-                            if (i == currVert)
-                            {
-                                Console.Write("|");
-                            }
-
-                            Console.Write(lines[j][i]);
-                        }
-                        Console.WriteLine();
-                    }
-                }
-                else if (currHor != 0)
-                {
-                    Console.WriteLine("Horizontal mirror: " + currHor);
-                    string[] lines = pattern.Split("\n");
-                    for (int j = 0; j < lines.Length; j++)
-                    {
-                        if (j == currHor)
-                        {
-                            string seperator = "";
-
-                            for (int i = 0; i < lines[j].Length; i++)
-                            {
-                                seperator += "-";
-                            }
-
-                            Console.WriteLine(seperator);
-                        }
-
-                        Console.WriteLine(lines[j]);
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("no mirror");
-                    Console.WriteLine(pattern);
-                }
-
-                Console.WriteLine();
-                Console.WriteLine();
             }
 
             return 100 * horizontals + verticals;
         }
 
-        private static int PartTwo(string rows)
+        private static string Swap(string input, int index)
         {
-            return 0;
+            StringBuilder sb = new StringBuilder(input);
+
+            if (sb[index].Equals('#'))
+            {
+                sb[index] = '.';
+            }
+            else if (sb[index].Equals('.'))
+            {
+                sb[index] = '#';
+            }
+
+            return sb.ToString();
         }
 
         private static int GetVerticalNumber(List<string> pattern)
@@ -163,20 +171,6 @@ namespace Advent_of_Code
             return 0;
         }
 
-        private static bool AreListsEqual(List<string> list1, List<string> list2)
-        {
-            if (list1.Count != list2.Count)
-                return false;
-
-            for (int i = 0; i < list1.Count; i++)
-            {
-                if (!list1[i].Equals(list2[i]))
-                    return false;
-            }
-
-            return true;
-        }
-
         private static int GetHorizontalNumer(List<string> pattern)
         {
             List<string> top = new List<string>(), bottom = new List<string>();
@@ -200,6 +194,20 @@ namespace Advent_of_Code
             }
 
             return 0;
+        }
+
+        private static bool AreListsEqual(List<string> list1, List<string> list2)
+        {
+            if (list1.Count != list2.Count)
+                return false;
+
+            for (int i = 0; i < list1.Count; i++)
+            {
+                if (!list1[i].Equals(list2[i]))
+                    return false;
+            }
+
+            return true;
         }
     }
 }
