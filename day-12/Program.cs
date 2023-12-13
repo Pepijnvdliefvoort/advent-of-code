@@ -41,42 +41,18 @@ namespace Advent_of_Code
             Console.ReadKey();
         }
 
-        private static int PartOne(List<string> rows)
+        private static int PartOne(List<string> input)
         {
             int sum = 0;
-            foreach (string row in rows)
-            {
-                var springs = row.Split(" ")[0];
-                var groups = row.Split(" ")[1].Split(",").Select(int.Parse).ToList();
 
-                sum += GetArrangements(springs, groups);
-            }
-
-            return 0;
+            return sum;
         }
 
         private static int PartTwo(List<string> rows)
         {
-            return 0;
+            int sum = 0;
+            return sum;
         }
 
-        private static int GetArrangements(string input, List<int> order)
-        {
-            int arrangements = 0;
-
-            for (int i = 0; i < input.Length; i++)
-            {
-                if (input[i].Equals('.'))
-                    continue;
-
-                // Beginning of string
-                if (input[i].Equals('.') && (input[i + 1].Equals('#') || input[i + 1].Equals('?')))
-                    continue;
-
-                arrangements++;
-            }
-
-            return arrangements;
-        }
-    }
+     }
 }
